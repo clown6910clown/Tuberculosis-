@@ -1,0 +1,97 @@
+/* Body and Basic Styling */
+body, html {
+    min-height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #b7eec7;
+    color: #333;
+}
+.bg-light {
+    background-color: #ffff !important;
+}
+/* Header Styling */
+.header {
+    background: #319795;
+    color: #fff;
+    padding: 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header h1 {
+    font-size: 4.8rem;
+    font-weight: bold;
+    margin: 0;
+    color: #ffff;
+}
+
+.lead {
+    font-size: 1.22rem !important;
+    font-weight: 300;
+}
+.text-primary {
+    color: #2D3748 !important;
+}
+.tagline {
+    font-size: 0.8rem;
+    margin-top: 10px;
+    color: #cce4ff;
+}
+
+/* Footer Styling */
+.footer {
+    background-color: #319795;
+    color: #fff;
+    padding: 15px;
+    font-size: 0.9rem;
+    text-align: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Container Styling */
+.container {
+    max-width: 600px;
+    margin-top: 30px;
+}
+
+.card{
+    background-color: #d9f9f1;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #5bc0de;
+    border-color: #38B2AC;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #2D3748;
+}
+
+.btn-primary:hover {
+    background-color: #3ebbe1;
+    border-color: #38B2AC;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-radius: 8px;
+    font-weight: bold;
+    
+}
+
+.btn-info {
+    background-color: #38B2AC;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #2D3748;
+}
+
+.btn-info:hover {
+    background-color: #38B2AC;
+}

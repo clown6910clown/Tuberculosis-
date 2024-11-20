@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TBEx - TB Prediction</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body class="bg-light">
+    <!-- Header -->
+    <header class="header text-center text-white py-5">
+        <div class="container">
+            <h1 class="display-4 font-weight-bold">TBEx</h1>
+            <p class="lead">EARLY DETECTION SAVES LIVES – KNOW THE SIGNS OF TB</p>
+            <a href="/logout" class="btn btn-secondary position-absolute" style="top: 20px; right: 20px;">Logout</a>
+        </div>
+    </header>
+    
+    <!-- Main Container -->
+    <div class="container my-5">
+        <!-- File Upload Section -->
+        <div class="card shadow p-4 mb-4">
+            <h2 class="text-center text-primary">Upload Chest X-Ray for TB Prediction</h2>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <input type="file" class="form-control-file" id="xrayImage" name="file" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Predict TB</button>
+            </form>
+            <div id="spinner" class="spinner mt-4 mx-auto" style="display: none;"></div>
+            <div id="result" class="mt-4"></div>
+        </div>
+
+        <!-- Prediction History -->
+        <div class="card shadow p-4 mb-4">
+            <h3 class="text-center text-primary">Prediction History</h3>
+            <div id="history"></div>
+            <button onclick="viewHistory()" class="btn btn-info btn-block mt-2">View History</button>
+        </div>
+
+        <!-- Feedback Section -->
+        <div class="card shadow p-4">
+            <h3 class="text-center text-primary">Feedback</h3>
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <textarea class="form-control" name="feedback" placeholder="Your feedback..." rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-secondary btn-block">Submit Feedback</button>
+            </form>
+            <button onclick="downloadFeedbacks()" class="btn btn-info btn-block mt-2">Download Feedbacks</button>
+        </div>
+    </div>
+
+    <!-- Download Report Button (Initially Hidden) -->
+    <button id="downloadReportBtn" style="display:none" class="btn btn-success btn-block mt-4">Download Report</button>
+
+    <!-- Footer -->
+    <footer class="footer text-center text-white py-3">
+        <p>&copy; 2024 TBEx. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS for Uploading, Feedback, and History -->
+    <script>
+        document.getElementById("uploadForm").onsubmit = async (event) => {
+            event.preventDefault();
+            const spinner = document.getElementById("spinner");
+            const resultDiv = document.getElementById("result");
+            const fileField = document.getElementById("xrayImage").files[0];
+    
+            // Clear any previous result and show the spinner
+            resultDiv.innerHTML = "";
+            spinner.style.display = "block";
+    
+            // Create FormData for the file
+            const formData = new FormData();
+            formData.append("file", fileField);
+    
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    body: formData,
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+    
+                const result = await response.json();
+    
+                // Hide the spinner after receiving response
+                spinner.style.display = "none";
+    
+                // Display the result in resultDiv
+                resultDiv.innerHTML = result.error
+                    ? `<div class="alert alert-danger">Error: ${result.error}</div>`
+                    : `<div class="alert alert-${result.result === 'TB Detected' ? 'danger' : 'success'}">
+                        Prediction: ${result.result}<br>Probability: ${result.probability}
+                       </div>`;
+    
+                // Update prediction history if there’s no error
+                if (!result.error) {
+                    updateHistory(fileField.name, result.result, result.probability);
+                    // Show the Download Report button
+                    document.getElementById("downloadReportBtn").style.display = "block";
+                }
+            } catch (error) {
+                console.error("Prediction request error:", error);
+                spinner.style.display = "none";
+                resultDiv.innerHTML = `<div class="alert alert-danger">An error occurred. Please try again. ${error.message}</div>`;
+            }
+        };
+    
+        // Define the updateHistory function to update the prediction history
+        function updateHistory(filename, result, probability) {
+            const historyDiv = document.getElementById("history");
+            const timestamp = new Date().toLocaleString();
+            historyDiv.innerHTML += `<div>${timestamp} - ${filename}: ${result} (Probability: ${probability})</div>`;
+        }
+    
+        document.getElementById("feedbackForm").onsubmit = async (event) => {
+            event.preventDefault();
+            const feedback = document.querySelector("textarea[name='feedback']").value;
+    
+            // Add your feedback submission logic here.
+            console.log("Feedback submitted:", feedback);
+            alert("Feedback submitted successfully!");
+        };
+    
+        function viewHistory() {
+    fetch("/history")
+        .then((response) => response.json())
+        .then((data) => {
+            const historyDiv = document.getElementById("history");
+            historyDiv.innerHTML = "";
+            data.forEach((entry, index) => {
+                historyDiv.innerHTML += `<div>${entry.timestamp} - ${entry.filename}: ${entry.result} (Probability: ${entry.probability}) 
+                <button onclick="downloadReport(${index})" class="btn btn-info btn-sm ml-2">Download Report</button></div>`;
+            });
+        })
+        .catch((error) => {
+            console.error("Error retrieving history:", error);
+            alert("Could not load history. Please try again.");
+        });
+}
+
+function downloadReport(reportId) {
+    window.location.href = `/download_report/${reportId}`;
+}
+
+    
+        function downloadFeedbacks() {
+            window.location.href = "/download_feedbacks";
+        }
+    </script>
+</body>
+</html>
